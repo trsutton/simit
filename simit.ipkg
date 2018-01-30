@@ -1,0 +1,20 @@
+package simit
+
+pkgs = contrib
+
+version    = 0.0.1
+brief      = "A simulator/compiler for Verilog"
+
+author     = Trevon Sutton <trevon.sutton.dev@gmail.com>
+license    = BSD3
+homepage   = https://github.com/githubuser/simit
+sourceloc  = git@github.com:githubuser/simit.git
+bugtracker = https://github.com/githubuser/simit/issues
+
+sourcedir  = src
+modules    = SimIt.SystemVerilog.Logic.Types
+           , SimIt.SystemVerilog.Logic.LogicVector
+           , SimIt.SystemVerilog.Logic.TwoStateLogic
+           , SimIt.SystemVerilog.Lexer
+
+tests      = test.SimIt.SystemVerilog.LexerTest

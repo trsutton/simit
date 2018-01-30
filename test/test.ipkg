@@ -1,0 +1,13 @@
+package simit_tests
+
+opts = "--sourcepath ../src/ --idrispath ../src/"
+
+pkgs = contrib, specdris
+
+modules = SimIt.TestUtil
+        , SimIt.SystemVerilog.LexerTest
+        , SimIt.SystemVerilog.Logic.TwoStateLogicTest
+
+
+tests = SimIt.SystemVerilog.LexerTest.specSuite
+      , SimIt.SystemVerilog.Logic.TwoStateLogicTest.specSuite
