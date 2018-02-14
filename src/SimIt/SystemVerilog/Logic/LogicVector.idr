@@ -71,24 +71,55 @@ data Index : (n : Nat) -> (xs : LogicVector s len a) -> Type where
                {auto xs : Vect (S (lsb - msb)) a} ->
                Index n (LvMsb msb lsb xs)
 
+||| Range (i.e. part select) within the bounds of a `LogicVector`
+data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) -> Type where
+    LsbRange : LogicValue a =>
+               (m : Nat) ->
+               (n : Nat) ->
+               {auto bitNumberingLsb : LTE lsb msb} ->
+               {auto mLteMsb : LTE m msb} -> 
+               {auto mGteLsb : GTE m lsb} ->
+               {auto nLteMsb : LTE n msb} ->
+               {auto nGteLsb : GTE n lsb} ->
+               {auto xs : Vect (S (msb - lsb)) a} ->    
+               {auto validIndices : LTE n m} ->
+               Range {sz = S (m - n)} (LvLsb msb lsb xs) m n
+
+    MsbRange : LogicValue a =>
+               (m : Nat) ->
+               (n : Nat) ->
+               {auto bitNumberingMsb : LTE msb lsb} ->
+               {auto mGteMsb : GTE m msb} ->
+               {auto mLteLsb : LTE m lsb} ->
+               {auto nGteMsb : GTE n msb} ->
+               {auto nLteLsb : LTE n lsb} ->
+               {auto xs : Vect (S (lsb - msb)) a} ->
+               {auto validIndices : LTE m n} ->
+               Range {sz = S (n - m)} (LvMsb msb lsb xs) m n
+
+restrict' : (n : Nat) -> Integer -> Fin (S n)
+restrict' n val = let val' = assert_total (abs (mod val (cast (S n)))) in
+                    fromInteger {n = S n} val' 
+                        {prf = believe_me {a=IsJust (Just val')} ItIsJust}
+
 ||| Get the element at the given index of a non-empty vector
 getAt : (lv : LogicVector s len a) -> Index n lv -> a
 getAt (LvLsb msb lsb xs) (LsbIndex n) = 
-    let idx = restrict (msb - lsb) (toIntegerNat (msb - n)) 
+    let idx = restrict' (msb - lsb) (toIntegerNat (msb - n)) 
     in Vect.index idx xs
 
 getAt (LvMsb msb lsb xs) (MsbIndex n) = 
-    let idx = restrict (lsb - msb) (toIntegerNat (n - msb)) 
+    let idx = restrict' (lsb - msb) (toIntegerNat (n - msb)) 
     in Vect.index idx xs
 
 ||| Set the element at the given index of a non-empty vector
 setAt : (lv : LogicVector s len a) -> Index n lv -> a -> LogicVector s len a
 setAt (LvLsb msb lsb xs) (LsbIndex n) x = 
-    let idx = restrict (msb - lsb) (toIntegerNat (msb - n))
+    let idx = restrict' (msb - lsb) (toIntegerNat (msb - n))
         xs' = Vect.replaceAt idx x xs 
     in LvLsb msb lsb xs'
         
 setAt (LvMsb msb lsb xs) (MsbIndex n) x = 
-    let idx = restrict (lsb - msb) (toIntegerNat (n - msb))
+    let idx = restrict' (lsb - msb) (toIntegerNat (n - msb))
         xs' = Vect.replaceAt idx x xs 
     in LvMsb msb lsb xs'

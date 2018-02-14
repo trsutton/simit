@@ -26,7 +26,8 @@ testCase
             describe "#setAt" $ do
               it "sets the logic value at the given index" $ do
                 let lsb2' = setAt lsb2 (LsbIndex 0) Logic0
-                getAt lsb2' (LsbIndex 0) === Logic0
+                let newBit = getAt lsb2' (LsbIndex 0)
+                newBit `shouldBe` Logic0
 
 export  
 specSuite : IO ()
