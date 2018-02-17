@@ -72,7 +72,12 @@ data Index : (n : Nat) -> (xs : LogicVector s len a) -> Type where
                Index n (LvMsb msb lsb xs)
 
 ||| Range (i.e. part select) within the bounds of a `LogicVector`
+||| @ sz the size of the `Range`
+||| @ lv the `LogicVector` to which the range applies
+||| @ m the inclusive index of the start of the range/slice
+||| @ n the inclusive index of the end of the range/slice
 data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) -> Type where
+    ||| An in-bound range for a `LogicVector` that uses LSB-n bit numbering
     LsbRange : LogicValue a =>
                (m : Nat) ->
                (n : Nat) ->
@@ -84,7 +89,8 @@ data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) 
                {auto xs : Vect (S (msb - lsb)) a} ->    
                {auto validIndices : LTE n m} ->
                Range {sz = S (m - n)} (LvLsb msb lsb xs) m n
-
+    
+    ||| An in-bound range for a `LogicVector` tat uses MSB-n bit numbering
     MsbRange : LogicValue a =>
                (m : Nat) ->
                (n : Nat) ->
@@ -97,6 +103,7 @@ data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) 
                {auto validIndices : LTE m n} ->
                Range {sz = S (n - m)} (LvMsb msb lsb xs) m n
 
+||| Creates a `Fin` that bounds the given integer
 restrict' : (n : Nat) -> Integer -> Fin (S n)
 restrict' n val = let val' = assert_total (abs (mod val (cast (S n)))) in
                     fromInteger {n = S n} val' 
@@ -123,3 +130,14 @@ setAt (LvMsb msb lsb xs) (MsbIndex n) x =
     let idx = restrict' (lsb - msb) (toIntegerNat (n - msb))
         xs' = Vect.replaceAt idx x xs 
     in LvMsb msb lsb xs'
+
+||| Selects a range of bits from a `LogicVector`
+select : (lv : LogicVector s len a) -> Range {sz} lv m n -> LogicVector s sz a
+select (LvLsb _ _ _) (MsbRange _ _) impossible
+select (LvMsb _ _ _) (LsbRange _ _) impossible
+select (LvLsb msb lsb xs) (LsbRange m n) = 
+    let nDrop = msb - n
+        nTake = S (m - n)
+        xs' = (Vect.take nTake . Vect.drop nDrop) xs
+    in LvLsb m n xs'
+select (LvMsb msb lsb xs) (MsbRange m n) = ?select_rhs_msb
