@@ -136,7 +136,7 @@ select : (lv : LogicVector s len a) -> Range {sz} lv m n -> LogicVector s sz a
 select (LvLsb _ _ _) (MsbRange _ _) impossible
 select (LvMsb _ _ _) (LsbRange _ _) impossible
 select (LvLsb msb lsb xs) (LsbRange m n) = 
-    let nDrop = msb - n
+    let nDrop = msb - m
         nTake = S (m - n)
         xs' = (Vect.take nTake . Vect.drop nDrop) xs
     in LvLsb m n xs'
