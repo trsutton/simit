@@ -82,10 +82,10 @@ data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) 
                (m : Nat) ->
                (n : Nat) ->
                {auto bitNumberingLsb : LTE lsb msb} ->
-               {auto mLteMsb : LTE m msb} -> 
-               {auto mGteLsb : GTE m lsb} ->
-               {auto nLteMsb : LTE n msb} ->
-               {auto nGteLsb : GTE n lsb} ->
+               {auto startLteMsb : LTE m msb} -> 
+               {auto startGteLsb : GTE m lsb} ->
+               {auto endLteMsb : LTE n msb} ->
+               {auto endGteLsb : GTE n lsb} ->
                {auto xs : Vect (S (msb - lsb)) a} ->    
                {auto validIndices : LTE n m} ->
                Range {sz = S (m - n)} (LvLsb msb lsb xs) m n
@@ -95,10 +95,10 @@ data Range : {sz : Nat} -> (lv : LogicVector s len a) -> (m : Nat) -> (n : Nat) 
                (m : Nat) ->
                (n : Nat) ->
                {auto bitNumberingMsb : LTE msb lsb} ->
-               {auto mGteMsb : GTE m msb} ->
-               {auto mLteLsb : LTE m lsb} ->
-               {auto nGteMsb : GTE n msb} ->
-               {auto nLteLsb : LTE n lsb} ->
+               {auto startGteMsb : GTE m msb} ->
+               {auto startLteLsb : LTE m lsb} ->
+               {auto endGteMsb : GTE n msb} ->
+               {auto endLteLsb : LTE n lsb} ->
                {auto xs : Vect (S (lsb - msb)) a} ->
                {auto validIndices : LTE m n} ->
                Range {sz = S (n - m)} (LvMsb msb lsb xs) m n
@@ -135,9 +135,10 @@ setAt (LvMsb msb lsb xs) (MsbIndex n) x =
 select : (lv : LogicVector s len a) -> Range {sz} lv m n -> LogicVector s sz a
 select (LvLsb _ _ _) (MsbRange _ _) impossible
 select (LvMsb _ _ _) (LsbRange _ _) impossible
-select (LvLsb msb lsb xs) (LsbRange m n) = 
-    let nDrop = msb - m
-        nTake = S (m - n)
-        xs' = (Vect.take nTake . Vect.drop nDrop) xs
-    in LvLsb m n xs'
+select {a} (LvLsb msb lsb xs) (LsbRange i j) =
+    let nDrop = msb - i
+        rest = S (i - lsb)
+        xs' : Vect (nDrop + rest) a = ?rewrite_rule
+        ys = Vect.drop {m = S (i - lsb)} nDrop xs'
+    in ?select_rhs_lsb
 select (LvMsb msb lsb xs) (MsbRange m n) = ?select_rhs_msb
