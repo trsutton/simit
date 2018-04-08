@@ -4,6 +4,7 @@ import Prelude
 import Data.Fin
 import Data.Vect
 import SimIt.SystemVerilog.Logic.Types
+import SimIt.SystemVerilog.Logic.BoundVect
 
 %access public export
 %default total
@@ -135,10 +136,5 @@ setAt (LvMsb msb lsb xs) (MsbIndex n) x =
 select : (lv : LogicVector s len a) -> Range {sz} lv m n -> LogicVector s sz a
 select (LvLsb _ _ _) (MsbRange _ _) impossible
 select (LvMsb _ _ _) (LsbRange _ _) impossible
-select {a} (LvLsb msb lsb xs) (LsbRange i j) =
-    let nDrop = msb - i
-        rest = S (i - lsb)
-        xs' : Vect (nDrop + rest) a = ?rewrite_rule
-        ys = Vect.drop {m = S (i - lsb)} nDrop xs'
-    in ?select_rhs_lsb
-select (LvMsb msb lsb xs) (MsbRange m n) = ?select_rhs_msb
+select (LvLsb msb lsb xs) (LsbRange m n) = LvLsb m n (boundVectLsbAuto m n msb lsb xs)
+select (LvMsb msb lsb xs) (MsbRange m n) =  LvMsb m n (boundVectAuto m n msb lsb xs)
