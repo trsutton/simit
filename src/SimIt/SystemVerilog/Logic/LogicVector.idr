@@ -136,5 +136,5 @@ setAt (LvMsb msb lsb xs) (MsbIndex n) x =
 select : (lv : LogicVector s len a) -> Range {sz} lv m n -> LogicVector s sz a
 select (LvLsb _ _ _) (MsbRange _ _) impossible
 select (LvMsb _ _ _) (LsbRange _ _) impossible
-select (LvLsb msb lsb xs) (LsbRange m n) = LvLsb m n (boundVectLsbAuto m n msb lsb xs)
-select (LvMsb msb lsb xs) (MsbRange m n) =  LvMsb m n (boundVectAuto m n msb lsb xs)
+select (LvLsb msb lsb xs) (LsbRange m n) = LvLsb m n (boundVectLsb m n msb lsb xs)
+select (LvMsb msb lsb xs) (MsbRange m n) =  LvMsb m n (boundVect m n msb lsb xs)
